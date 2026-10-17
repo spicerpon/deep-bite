@@ -32,8 +32,17 @@ window.GF = window.GF || {};
       this.boardRef = null;
       this.lastStamp = 0;
       this.alive = false;
-      this.boardCount = 0;
+      this.boardCount = 0;   // 방 전체 인구 (봇 포함) — HUD 표시용
+      this.realCount = 1;    // 진짜 유저 수 — 방 배정/봇 수 결정용
       this.globalUnsubs = [];
+      // 호스트(봇 운영) 관련
+      this.isHost = false;
+      this.botHost = null;
+      this.hostRef = null;
+      this.lastHostVal = null;
+      this.claimTimer = null;
+      this.beatTimer = null;
+      this.hostCheckTimer = null;
     }
     on(evt, cb) { this.h[evt] = cb; }
     emit(evt, ...args) { if (this.h[evt]) this.h[evt](...args); }
@@ -102,29 +111,103 @@ window.GF = window.GF || {};
         list.sort((a, b) => b.m - a.m);
         this.emit('board', list, this.boardCount);
       }));
-      // 접속자 수 (30초마다 가볍게 갱신)
-      this.countTimer = setInterval(() => this._refreshCount(), 30000);
+      // 접속자 수 (15초마다 가볍게 갱신)
+      this.countTimer = setInterval(() => this._refreshCount(), 15000);
+
+      // 호스트 선출 (방 인구 유지용 봇 운영자)
+      this._initHost();
+      this._visHandler = () => {
+        if (document.visibilityState === 'hidden') { if (this.isHost) this._releaseHost(); }
+        else this._maybeClaim();
+      };
+      document.addEventListener('visibilitychange', this._visHandler);
 
       return { uid: this.uid, room: this.room };
     }
 
+    // board 엔트리를 세어 {all, real} 반환. 봇 uid는 '~'를 포함.
     async _countRoom(name) {
       const F = this.F;
       const snap = await F.get(F.ref(this.db, `rooms/${name}/board`));
-      let count = 0; const now = this.now();
-      snap.forEach((ch) => { const v = ch.val(); if (v && (!v.t || now - v.t < C.GHOST_MS)) count++; });
-      return count;
+      let all = 0, real = 0; const now = this.now();
+      snap.forEach((ch) => {
+        const v = ch.val();
+        if (v && (!v.t || now - v.t < C.GHOST_MS)) { all++; if (!ch.key.includes('~')) real++; }
+      });
+      return { all, real };
     }
     async _pickRoom() {
       for (let i = 1; i <= C.MAX_ROOMS; i++) {
         const name = `${C.ROOM_PREFIX}-${i}`;
-        const count = await this._countRoom(name);
-        if (count < C.ROOM_CAP) { this.boardCount = count + 1; return name; }
+        const c = await this._countRoom(name);
+        if (c.real < C.ROOM_CAP) { this.boardCount = c.all + 1; this.realCount = c.real + 1; return name; }
       }
       return `${C.ROOM_PREFIX}-${1 + Math.floor(Math.random() * C.MAX_ROOMS)}`;
     }
     async _refreshCount() {
-      try { this.boardCount = await this._countRoom(this.room); } catch (e) { /* ignore */ }
+      try {
+        const c = await this._countRoom(this.room);
+        this.boardCount = c.all; this.realCount = Math.max(1, c.real);
+        if (this.botHost) this.botHost.setRealCount(this.realCount);
+      } catch (e) { /* ignore */ }
+    }
+
+    // ---------------- host election (population policy) ----------------
+    _initHost() {
+      const F = this.F;
+      this.hostRef = this.R('host');
+      this.globalUnsubs.push(F.onValue(this.hostRef, (snap) => {
+        const v = snap.val();
+        this.lastHostVal = v;
+        if (v && v.uid === this.uid) { this._becomeHost(); return; }
+        if (this.isHost) this._loseHost();
+        this._maybeClaim();
+      }));
+      this.hostCheckTimer = setInterval(() => this._maybeClaim(), 5000);
+    }
+    _hostIsStale() {
+      const v = this.lastHostVal;
+      return !v || !v.t || this.now() - v.t > C.HOST_STALE_MS;
+    }
+    _maybeClaim() {
+      if (this.isHost || this.claimTimer || !this.F || document.visibilityState === 'hidden') return;
+      if (!this._hostIsStale()) return;
+      this.claimTimer = setTimeout(() => {
+        this.claimTimer = null;
+        if (this.isHost || !this._hostIsStale()) return;
+        this.F.runTransaction(this.hostRef, (cur) => {
+          const now = this.now();
+          if (!cur || !cur.t || now - cur.t > C.HOST_STALE_MS) return { uid: this.uid, t: now };
+          return; // 다른 호스트가 살아있음 → 중단
+        }).catch(() => {});
+      }, 300 + Math.random() * 1500);
+    }
+    _becomeHost() {
+      if (this.isHost) return;
+      const F = this.F;
+      this.isHost = true;
+      F.onDisconnect(this.hostRef).remove();
+      this.beatTimer = setInterval(() => { F.update(this.hostRef, { t: F.serverTimestamp() }).catch(() => {}); }, C.HOST_BEAT_MS);
+      if (!this.botHost && GF.BotHost) this.botHost = new GF.BotHost(this);
+      if (this.botHost) { this.botHost.setRealCount(this.realCount); this.botHost.start(); }
+      this.emit('host', true);
+    }
+    _loseHost() {
+      if (!this.isHost) return;
+      this.isHost = false;
+      if (this.beatTimer) { clearInterval(this.beatTimer); this.beatTimer = null; }
+      if (this.hostRef) this.F.onDisconnect(this.hostRef).cancel();
+      if (this.botHost) this.botHost.stop();
+      this.emit('host', false);
+    }
+    _releaseHost() {
+      if (!this.isHost) return;
+      this._loseHost();
+      this.F.remove(this.hostRef).catch(() => {});
+    }
+    // 게임 루프에서 매 프레임 호출 — 호스트일 때만 봇 시뮬레이션
+    step(dt) {
+      if (this.isHost && this.botHost) this.botHost.step(dt);
     }
 
     // ---------------- my state ----------------
@@ -225,7 +308,7 @@ window.GF = window.GF || {};
         const id = F.push(this.R('drops')).key;
         upd[`rooms/${this.room}/drops/${cell}/${id}`] = { x: d.x, y: d.y, v: d.v, t: F.serverTimestamp() };
       }
-      if (killerUid && !killerUid.startsWith('bot')) {
+      if (killerUid) {
         const id = F.push(this.R('events')).key;
         upd[`rooms/${this.room}/events/${killerUid}/${id}`] = { m: ev.m, v: ev.v };
       }
@@ -250,6 +333,10 @@ window.GF = window.GF || {};
     disconnect() {
       const F = this.F;
       if (!F) return;
+      this._releaseHost();
+      if (this.hostCheckTimer) clearInterval(this.hostCheckTimer);
+      if (this.claimTimer) { clearTimeout(this.claimTimer); this.claimTimer = null; }
+      if (this._visHandler) document.removeEventListener('visibilitychange', this._visHandler);
       for (const [, s] of this.subs) s.forEach((u) => u());
       this.subs.clear();
       this.globalUnsubs.forEach((u) => u());
