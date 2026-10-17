@@ -8,7 +8,7 @@
   const els = {
     canvas: $('game'), minimap: $('minimap'), boostBtn: $('boost-btn'),
     start: $('start'), death: $('death'), hud: $('hud'), toast: $('toast'), feed: $('feed'),
-    name: $('name'), skinPrev: $('skin-prev'), skinNext: $('skin-next'), skinCanvas: $('skin-preview'), skinName: $('skin-name'),
+    name: $('fish-nick'), skinPrev: $('skin-prev'), skinNext: $('skin-next'), skinCanvas: $('skin-preview'), skinName: $('skin-name'),
     playOnline: $('play-online'), playBots: $('play-bots'), onlineNote: $('online-note'), status: $('status'),
     hudMass: $('hud-mass'), hudRank: $('hud-rank'), board: $('board'), hudPlayers: $('hud-players'), hint: $('hint'),
     deathTitle: $('death-title'), deathSub: $('death-sub'), stPeak: $('st-peak'), stKills: $('st-kills'), stFood: $('st-food'), stTime: $('st-time'),
@@ -17,9 +17,15 @@
 
   let skin = GF.storage.get('gf.skin', 0) | 0;
   // 기본 닉네임: 저장된 이름이 없으면 더미셋에서 랜덤
-  els.name.value = GF.storage.get('gf.name', '') || GF.randomName();
+  const initialName = GF.storage.get('gf.name', '') || GF.randomName();
+  els.name.value = initialName;
+  // 브라우저 자동완성(연락처 이름 등)이 끼어들면 되돌림 — 사용자가 직접 입력하기 전까지만
+  let userTyped = false;
+  els.name.addEventListener('input', () => { if (document.activeElement === els.name) userTyped = true; });
+  const guardAutofill = () => { if (!userTyped && els.name.value !== initialName) els.name.value = initialName; };
+  [150, 600, 1500].forEach((ms) => setTimeout(guardAutofill, ms));
   const shuffleBtn = $('name-shuffle');
-  if (shuffleBtn) shuffleBtn.addEventListener('click', () => { els.name.value = GF.randomName(); els.name.focus(); });
+  if (shuffleBtn) shuffleBtn.addEventListener('click', () => { userTyped = true; els.name.value = GF.randomName(); els.name.focus(); });
   let game = null, net = null, mode = null;
   let toastTimer = 0;
 
