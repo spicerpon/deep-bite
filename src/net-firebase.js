@@ -127,14 +127,14 @@ window.GF = window.GF || {};
       return { uid: this.uid, room: this.room };
     }
 
-    // board 엔트리를 세어 {all, real} 반환. 봇 uid는 '~b'를 포함 (플레이어는 '~p').
+    // board 엔트리를 세어 {all, real} 반환. 봇 id는 'bot~'로 시작 (플레이어는 '{auth}~p...').
     async _countRoom(name) {
       const F = this.F;
       const snap = await F.get(F.ref(this.db, `rooms/${name}/board`));
       let all = 0, real = 0; const now = this.now();
       snap.forEach((ch) => {
         const v = ch.val();
-        if (v && (!v.t || now - v.t < C.GHOST_MS)) { all++; if (!ch.key.includes('~b')) real++; }
+        if (v && (!v.t || now - v.t < C.GHOST_MS)) { all++; if (!ch.key.startsWith('bot~')) real++; }
       });
       return { all, real };
     }
