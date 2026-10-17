@@ -47,6 +47,27 @@ GF.randId = (n = 8) => {
   return s;
 };
 
+// 더미 닉네임 생성기 — 기본 닉네임과 봇 이름에 같이 사용 (사람이 지은 듯한 느낌)
+GF.NAME_POOL = [
+  'Finn', 'Gill', 'Bubbles', 'Coral', 'Pearl', 'Sandy', 'Kelp', 'Moby', 'Shelly', 'Wavy', 'Splash', 'Tide',
+  'Reef', 'Guppy', 'Blub', 'Fathom', 'Nori', 'Mako', 'Scales', 'Puff', 'Drift', 'Marina', 'Otto', 'Pike', 'Roe',
+  'Sushi', 'Chum', 'Ripple', 'Barnacle', 'Squirt', 'Flounder', 'Dorsal', 'Minnie', 'Bass', 'Cod', 'Haddock',
+  'Krill', 'Wasabi', 'Tako', 'Saba', 'Maguro', 'Hamachi', 'Tuna', 'Salmon', 'Trout', 'Carp', 'Goby', 'Wrasse',
+  'Snapper', 'Grouper', 'Mullet', 'Perch', 'Herring', 'Sprat', 'Smelt', 'Anchovy', 'Puffer', 'Marlin', 'Sardine',
+  'Blenny', 'Zander', 'Bream', 'Eely', 'Lil Shrimp', 'Big Tuna', 'Sea Pup', 'Deep Dan', 'Kraken Jr', 'Captain',
+  'Bubba', 'Gilly', 'Fishy', 'Neptune', 'Nessie', 'Mochi', 'Pico', 'Yuki', 'Momo', 'Kai', 'Luna', 'Ollie',
+];
+GF.randomName = (rand = Math.random) => {
+  const base = GF.NAME_POOL[(rand() * GF.NAME_POOL.length) | 0];
+  const u = rand();
+  let name = base;
+  if (u < 0.22) name = base + (10 + ((rand() * 90) | 0));          // Finn42
+  else if (u < 0.32) name = base + '_' + (1 + ((rand() * 99) | 0));  // Finn_7
+  else if (u < 0.40) name = base.toLowerCase();                      // finn
+  else if (u < 0.46) name = 'x' + base + 'x';                        // xFinnx
+  return name.slice(0, GF.CONFIG.NAME_MAX);
+};
+
 GF.sanitizeName = (s) => {
   s = String(s || '').replace(/[\u0000-\u001f\u007f<>]/g, '').trim();
   if (!s) s = 'Fish';
