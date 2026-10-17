@@ -161,6 +161,9 @@
   if (window.matchMedia('(pointer: coarse)').matches) {
     els.boostBtn.classList.add('touch');
     els.hint.textContent = 'Drag to steer · Hold BOOST (or a 2nd finger) to dash';
+    const cm = $('ctrl-move'), cb = $('ctrl-boost');
+    if (cm) cm.textContent = 'Drag';
+    if (cb) cb.textContent = 'Hold BOOST';
   }
 
   previewRaf = requestAnimationFrame(drawPreview);
