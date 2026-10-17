@@ -7,7 +7,7 @@
         "host": {
           ".read": "auth != null",
           ".write": "auth != null && (!data.exists() || data.child('uid').val() == auth.uid || data.child('t').val() < now - 20000)",
-          ".validate": "newData.hasChildren(['uid','t']) && newData.child('uid').val() == auth.uid && newData.child('t').isNumber()"
+          ".validate": "newData.hasChildren(['uid','sid','t']) && newData.child('uid').val() == auth.uid && newData.child('sid').isString() && newData.child('sid').val().beginsWith(auth.uid) && newData.child('t').isNumber()"
         },
         "cells": {
           "$cell": {
