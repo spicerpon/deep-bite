@@ -98,13 +98,14 @@ window.GF = window.GF || {};
         if (!this.enabled || !this.h5Ready || this._showing || !window.adBreak) return resolve(false);
         let done = false;
         const finish = (shown) => { if (done) return; done = true; this._showing = false; clearTimeout(timer); resolve(shown); };
-        const timer = setTimeout(() => { if (onResume) try { onResume(); } catch (e) {} finish(false); }, 45000); // 안전장치 (콜백 누락 대비)
+        // 안전장치: 광고가 시작(beforeAd)되지도 않고 끝나지도 않으면 포기. 일단 시작된 광고는 SDK가 반드시 adBreakDone 을 부른다.
+        const timer = setTimeout(() => finish(false), 45000);
         this._showing = true;
         try {
           window.adBreak({
             type: 'next',
             name: 'after_death',
-            beforeAd: () => { if (onPause) try { onPause(); } catch (e) {} },
+            beforeAd: () => { clearTimeout(timer); if (onPause) try { onPause(); } catch (e) {} },
             afterAd: () => { if (onResume) try { onResume(); } catch (e) {} },
             adBreakDone: (info) => {
               const shown = !!(info && info.breakStatus === 'viewed');
