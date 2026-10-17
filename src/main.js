@@ -13,6 +13,7 @@
     hudMass: $('hud-mass'), hudRank: $('hud-rank'), board: $('board'), hudPlayers: $('hud-players'), hint: $('hint'),
     deathTitle: $('death-title'), deathSub: $('death-sub'), stPeak: $('st-peak'), stKills: $('st-kills'), stFood: $('st-food'), stTime: $('st-time'),
     again: $('again'), menu: $('menu'),
+    continueAd: $('continue-ad'), continueAdSub: $('continue-ad-sub'), adStatus: $('ad-status'), adStart: $('ad-start'), adDeath: $('ad-death'),
   };
 
   let skin = GF.storage.get('gf.skin', 0) | 0;
@@ -28,6 +29,8 @@
   if (shuffleBtn) shuffleBtn.addEventListener('click', () => { userTyped = true; els.name.value = GF.randomName(); els.name.focus(); });
   let game = null, net = null, mode = null;
   let toastTimer = 0;
+  // 광고 상태: 이번 'Swim again' 전에 전면광고를 보여줄지 / 준비된 보상형 광고 재생 함수
+  let pendingInterstitial = false, continueShow = null;
 
   // ---------- skin preview ----------
   const pctx = els.skinCanvas.getContext('2d');
@@ -57,6 +60,11 @@
     els.playOnline.disabled = true;
     els.onlineNote.hidden = false;
   }
+
+  // ---------- ads ----------
+  const ADS = window.GF_ADS_CONFIG || { provider: 'none' };
+  GF.Ads.init(ADS);
+  GF.Ads.banner(els.adStart, ADS.slots && ADS.slots.start);
 
   // ---------- UI callbacks for Game ----------
   const ui = {
@@ -99,6 +107,34 @@
       els.stTime.textContent = GF.fmtTime(st.time);
       els.death.hidden = false;
       els.hint.hidden = true;
+      els.adStatus.hidden = true;
+
+      // --- 광고 ---
+      const A = GF.Ads;
+      els.continueAd.hidden = true; continueShow = null;
+      pendingInterstitial = A.recordDeath();                 // N번째 사망 → 다음 'Swim again' 전에 전면광고
+      A.banner(els.adDeath, ADS.slots && ADS.slots.death);
+      // 보상형 '이어하기': 의미 있는 크기로 죽었고 이번 목숨에 아직 안 썼을 때만 제안
+      const canContinue = A.enabled && st.mass >= (ADS.continueMinMass || 40) && (st.continued || 0) < (ADS.continueMaxPerLife || 1);
+      if (canContinue) {
+        const share = ADS.continueMassShare || 0.5;
+        els.continueAdSub.textContent = `Come back nearby with ${GF.fmtMass(Math.round(st.mass * share))} mass`;
+        A.offerReward({
+          onReady: (show) => {
+            // 아직 결과 화면이고 죽은 상태일 때만 버튼 노출
+            if (!els.death.hidden && game && game.me && !game.me.alive) { continueShow = show; els.continueAd.hidden = false; }
+          },
+          onPause: () => game.pause(),
+          onResume: () => game.resume(),
+          onViewed: () => {
+            if (game.continueRun(share)) {
+              els.death.hidden = true; els.hud.hidden = false;
+              ui.toast('Back in the water!');
+            }
+          },
+          onDismissed: () => { els.adStatus.textContent = 'Ad skipped — no continue this time.'; els.adStatus.hidden = false; },
+        });
+      }
     },
   };
 
@@ -140,11 +176,25 @@
   els.playBots.addEventListener('click', () => play(false));
   els.name.addEventListener('keydown', (e) => { if (e.key === 'Enter') play(online); });
 
-  els.again.addEventListener('click', () => {
+  els.again.addEventListener('click', async () => {
+    els.continueAd.hidden = true; continueShow = null;   // 준비된 보상형 광고는 다음 사망 때 재사용
+    if (pendingInterstitial) {
+      pendingInterstitial = false;
+      els.again.disabled = true; els.menu.disabled = true;
+      try { await GF.Ads.interstitial({ onPause: () => game.pause(), onResume: () => game.resume() }); } catch (e) { /* ignore */ }
+      els.again.disabled = false; els.menu.disabled = false;
+      game.resume();
+    }
     els.death.hidden = true;
     game.respawn();
   });
+  els.continueAd.addEventListener('click', () => {
+    const show = continueShow; continueShow = null;
+    els.continueAd.hidden = true;
+    if (!show || !show()) { els.adStatus.textContent = 'Ad not available right now.'; els.adStatus.hidden = false; }
+  });
   els.menu.addEventListener('click', () => {
+    els.continueAd.hidden = true; continueShow = null;
     els.death.hidden = true;
     els.hud.hidden = true;
     if (game) game.stop();
