@@ -119,7 +119,7 @@ window.GF = window.GF || {};
     // ---------------------------------------------------------
     _spawnBot(big) {
       const net = this.net, F = net.F;
-      const uid = `${net.uid}~b${this.seq++}`;
+      const uid = `${net.authUid}~b${this.seq++}`;
       const bot = new GF.Bot(this.rand, big, uid);
       bot.protectUntil = 3;
       const b = { bot, uid, cell: null, ref: null, boardRef: net.R(`board/${uid}`), tickAcc: this.rand() * 0.2, boardAcc: this.rand(), lastStamp: 0, inboxUnsub: null };
@@ -218,7 +218,7 @@ window.GF = window.GF || {};
         for (const [uid, e] of this.entities) if (e.cell === cell) this.entities.delete(uid);
         this.foodState.delete(cell); this.drops.delete(cell);
       }
-      const mine = net.uid + '~';
+      const mine = net.authUid + '~b';
       for (const cell of want) {
         if (this.subs.has(cell)) continue;
         const unsubs = [];
