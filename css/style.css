@@ -148,13 +148,14 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outl
 
 .field { display: flex; flex-direction: column; gap: 6px; text-align: left; }
 .field-label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
-#name {
+#fish-nick {
   font: inherit; font-weight: 700; font-size: 16px; color: var(--fg);
   background: rgba(3, 18, 36, 0.55); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; width: 100%; box-sizing: border-box;
 }
-#name::placeholder { color: rgba(143, 179, 204, 0.6); font-weight: 600; }
+#fish-nick::placeholder { color: rgba(143, 179, 204, 0.6); font-weight: 600; }
+#fish-nick:-webkit-autofill { -webkit-text-fill-color: var(--fg); box-shadow: 0 0 0 1000px #0a2238 inset; }
 .name-row { display: flex; gap: 8px; align-items: stretch; }
-.name-row #name { flex: 1 1 auto; min-width: 0; }
+.name-row #fish-nick { flex: 1 1 auto; min-width: 0; }
 .shuffle {
   flex: 0 0 auto; width: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2);
   font-size: 20px; line-height: 1; padding: 0;
