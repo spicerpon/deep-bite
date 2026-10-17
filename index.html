@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<!-- @@HEAD-START -->
+<title>Deep Bite</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Deep Bite — eat, grow, don't get eaten. A multiplayer ocean .io game.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<!-- @@HEAD-END -->
+</head>
+<body>
+<!-- @@BODY-START -->
+<div id="app">
+  <canvas id="game" aria-label="Deep Bite ocean"></canvas>
+
+  <!-- ===== HUD ===== -->
+  <div id="hud" hidden>
+    <div class="hud-stats">
+      <div class="stat"><span class="label">Mass</span><span class="val" id="hud-mass">10</span></div>
+      <div class="stat"><span class="label">Rank</span><span class="val" id="hud-rank">-</span></div>
+    </div>
+    <div class="hud-board">
+      <div class="board-title">Top 10</div>
+      <ol id="board"></ol>
+      <div class="players" id="hud-players"></div>
+    </div>
+    <div id="feed" aria-live="polite"></div>
+    <canvas id="minimap" width="132" height="132" aria-hidden="true"></canvas>
+    <button id="boost-btn" type="button" aria-label="Boost">BOOST</button>
+    <div id="hint">Mouse to steer · Hold click or Space to boost</div>
+  </div>
+
+  <!-- ===== START ===== -->
+  <div id="start" class="screen">
+    <div class="rays" aria-hidden="true"></div>
+    <div class="card start-card">
+      <h1 class="logo">Deep Bite</h1>
+      <p class="tagline">Eat. Grow. Don't get eaten.</p>
+
+      <div class="skin-row">
+        <button class="arrow" id="skin-prev" type="button" aria-label="Previous fish">‹</button>
+        <div class="skin-box">
+          <canvas id="skin-preview" width="240" height="132"></canvas>
+          <div class="skin-name" id="skin-name">Clown</div>
+        </div>
+        <button class="arrow" id="skin-next" type="button" aria-label="Next fish">›</button>
+      </div>
+
+      <label class="field">
+        <span class="field-label">Your name</span>
+        <input id="name" type="text" maxlength="12" placeholder="Nameless fish" autocomplete="off" spellcheck="false">
+      </label>
+
+      <div class="btn-row">
+        <button class="btn primary" id="play-online" type="button">Play Online</button>
+        <button class="btn" id="play-bots" type="button">Play vs Bots</button>
+      </div>
+      <p class="note" id="online-note" hidden>Online play is off until Firebase is configured (see <code>src/firebase-config.js</code>). Bots are always ready.</p>
+      <p class="status" id="status" hidden></p>
+
+      <ul class="rules">
+        <li>Plankton <b>+1</b>, shrimp <b>+2</b>, minnows <b>+3</b> mass.</li>
+        <li>A fish <b>25% heavier</b> than you can swallow you. Smaller ones are lunch.</li>
+        <li>Boost is fast but burns mass. Above 300 mass you slowly slim down.</li>
+      </ul>
+      <p class="foot">a KOGAMES game · <span class="muted">v0.1</span></p>
+    </div>
+  </div>
+
+  <!-- ===== DEATH ===== -->
+  <div id="death" class="screen" hidden>
+    <div class="card death-card">
+      <h2 id="death-title">Eaten!</h2>
+      <p class="sub" id="death-sub"></p>
+      <div class="stats">
+        <div><span class="label">Peak mass</span><span class="val" id="st-peak">0</span></div>
+        <div><span class="label">Fish eaten</span><span class="val" id="st-kills">0</span></div>
+        <div><span class="label">Snacks</span><span class="val" id="st-food">0</span></div>
+        <div><span class="label">Survived</span><span class="val" id="st-time">0:00</span></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn primary" id="again" type="button">Swim again</button>
+        <button class="btn" id="menu" type="button">Change fish</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" hidden></div>
+</div>
+
+<script src="src/config.js"></script>
+<script src="src/util.js"></script>
+<script src="src/world.js"></script>
+<script src="src/fish.js"></script>
+<script src="src/render.js"></script>
+<script src="src/input.js"></script>
+<script src="src/bots.js"></script>
+<script src="src/net-local.js"></script>
+<script src="src/firebase-config.js"></script>
+<script src="src/net-firebase.js"></script>
+<script src="src/game.js"></script>
+<script src="src/main.js"></script>
+<!-- @@BODY-END -->
+</body>
+</html>
