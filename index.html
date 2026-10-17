@@ -7,6 +7,7 @@
 <title>Deep Bite</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Deep Bite — eat, grow, don't get eaten. A multiplayer ocean .io game.">
+<meta name="google-adsense-account" content="ca-pub-1318477289708440">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap">
 <link rel="stylesheet" href="css/style.css">
@@ -75,8 +76,9 @@
         <li>A fish <b>25% heavier</b> than you can swallow you. Smaller ones are lunch.</li>
         <li>Boost is fast but burns mass. Above 300 mass you slowly slim down.</li>
       </ul>
-      <p class="foot">a KOGAMES game · <span class="muted">v0.1</span></p>
+      <p class="foot">a KOGAMES game · <span class="muted">v0.1</span> · <a class="foot-link" href="https://kogames.dev/privacy/" target="_blank" rel="noopener">Privacy</a></p>
     </div>
+    <div class="ad-slot ad-start" id="ad-start" hidden aria-label="Advertisement"></div>
   </div>
 
   <!-- ===== DEATH ===== -->
@@ -90,11 +92,17 @@
         <div><span class="label">Snacks</span><span class="val" id="st-food">0</span></div>
         <div><span class="label">Survived</span><span class="val" id="st-time">0:00</span></div>
       </div>
+      <button class="btn reward" id="continue-ad" type="button" hidden>
+        <span class="reward-k">▶ Watch an ad · keep going</span>
+        <span class="reward-v" id="continue-ad-sub">Come back nearby with half your mass</span>
+      </button>
       <div class="btn-row">
         <button class="btn primary" id="again" type="button">Swim again</button>
         <button class="btn" id="menu" type="button">Change fish</button>
       </div>
+      <p class="status" id="ad-status" hidden></p>
     </div>
+    <div class="ad-slot ad-death" id="ad-death" hidden aria-label="Advertisement"></div>
   </div>
 
   <div id="toast" hidden></div>
@@ -109,6 +117,8 @@
 <script src="src/bots.js"></script>
 <script src="src/net-local.js"></script>
 <script src="src/firebase-config.js"></script>
+<script src="src/ads-config.js"></script>
+<script src="src/ads.js"></script>
 <script src="src/host-bots.js"></script>
 <script src="src/net-firebase.js"></script>
 <script src="src/game.js"></script>
