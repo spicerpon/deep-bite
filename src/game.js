@@ -77,6 +77,34 @@ window.GF = window.GF || {};
       if (!this._raf) this._raf = requestAnimationFrame(this._loop);
     }
 
+    // 광고 재생 중 일시정지: 내 조작/렌더만 멈추고, 호스트 봇 시뮬레이션(net.step)은 계속 돈다.
+    pause() { this.adPaused = true; this.input.reset(); }
+    resume() { this.adPaused = false; this.lastT = performance.now(); if (this.running && !this._raf) this._raf = requestAnimationFrame(this._loop); }
+
+    // 보상형 광고 '이어하기': 죽은 자리 근처에서 직전 질량의 share 비율로 다시 시작 (기록은 이어짐)
+    continueRun(share) {
+      const me = this.me;
+      if (!me || me.alive || !me.deathAt) return false;
+      const mass = GF.clamp(Math.round(me.deathAt.m * share), C.START_MASS, C.MAX_MASS);
+      const a = Math.random() * Math.PI * 2, d = 420 + Math.random() * 240;
+      const x = GF.clamp(me.deathAt.x + Math.cos(a) * d, 40, C.WORLD - 40);
+      const y = GF.clamp(me.deathAt.y + Math.sin(a) * d, 40, C.WORLD - 40);
+      Object.assign(me, {
+        x, y, a: Math.random() * Math.PI * 2, m: mass, r: GF.radius(mass),
+        boost: false, alive: true, protectUntil: performance.now() + C.SPAWN_PROTECT_MS * 1.5,
+        killedBy: null, continued: (me.continued || 0) + 1, deathAt: null,
+      });
+      this.input.reset();
+      this.renderer.snapCamera(x, y, this.renderer.scaleFor(me.r));
+      this.net.spawn(this._myRecord());
+      this._updateView(true);
+      this.tickAcc = 0; this.boardAcc = 0;
+      this.running = true;
+      this.lastT = performance.now();
+      if (!this._raf) this._raf = requestAnimationFrame(this._loop);
+      return true;
+    }
+
     _spawn(name, skin) {
       const p = GF.randomSpawn();
       this.me = {
@@ -84,6 +112,7 @@ window.GF = window.GF || {};
         x: p.x, y: p.y, a: Math.random() * Math.PI * 2, m: C.START_MASS, r: GF.radius(C.START_MASS),
         boost: false, alive: true, protectUntil: performance.now() + C.SPAWN_PROTECT_MS,
         born: performance.now(), kills: 0, foodEaten: 0, peak: C.START_MASS, killedBy: null, phase: Math.random() * 6,
+        continued: 0, deathAt: null,
       };
       this.input.reset();
       this.renderer.snapCamera(p.x, p.y, this.renderer.scaleFor(this.me.r));
@@ -175,7 +204,7 @@ window.GF = window.GF || {};
       if (dt < 0) dt = 0;
       this.time += dt;
       this._update(dt, t);
-      this._render(dt);
+      if (!this.adPaused) this._render(dt);
       this._raf = requestAnimationFrame(this._loop);
     }
 
@@ -184,6 +213,7 @@ window.GF = window.GF || {};
       const me = this.me, net = this.net;
       const serverNow = net.now();
       if (net.step) net.step(dt);
+      if (this.adPaused) return;
 
       if (me.alive) {
         // --- steering ---
@@ -329,6 +359,7 @@ window.GF = window.GF || {};
       me.alive = false;
       me.killedBy = killer.n || 'a fish';
       me.boost = false;
+      me.deathAt = { x: me.x, y: me.y, m: me.m }; // 이어하기(보상형 광고)용
       const give = Math.round(me.m * C.KILL_SHARE);
       // 알갱이 흩뿌리기
       const dropMass = me.m * C.DROP_SHARE;
@@ -343,6 +374,7 @@ window.GF = window.GF || {};
       this.ui.death({
         killedBy: me.killedBy, peak: me.peak, kills: me.kills, foodEaten: me.foodEaten,
         time: performance.now() - me.born,
+        mass: me.deathAt.m, continued: me.continued || 0,
       });
     }
 
