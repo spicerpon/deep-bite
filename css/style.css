@@ -177,6 +177,13 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outl
 .note code { color: var(--cyan); font-size: 12px; }
 .status { margin: -4px 0 0; font-size: 13px; color: var(--cyan); font-weight: 700; }
 
+.controls { display: flex; gap: 8px; flex-wrap: wrap; }
+.ctrl {
+  flex: 1 1 150px; display: flex; flex-direction: column; gap: 2px; align-items: center; justify-content: center;
+  background: rgba(3, 18, 36, 0.5); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; min-width: 0;
+}
+.ctrl-k { font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--accent); text-align: center; }
+.ctrl-v { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
 .rules { margin: 2px 0 0; padding: 12px 14px; text-align: left; list-style: none; display: flex; flex-direction: column; gap: 6px;
   font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }
 .rules b { color: var(--fg); }
