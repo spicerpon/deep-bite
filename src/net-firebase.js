@@ -64,7 +64,9 @@ window.GF = window.GF || {};
       const auth = authMod.getAuth(app);
       try {
         const cred = await authMod.signInAnonymously(auth);
-        this.uid = cred.user.uid;
+        // 같은 브라우저의 여러 탭이 익명 계정을 공유하므로, 플레이어 id는 탭마다 다르게 (rules: auth.uid + '~' 접두 허용)
+        this.authUid = cred.user.uid;
+        this.uid = cred.user.uid + '~p' + GF.randId(4);
       } catch (e) {
         const code = e && e.code || '';
         if (code.includes('operation-not-allowed') || code.includes('admin-restricted'))
@@ -125,14 +127,14 @@ window.GF = window.GF || {};
       return { uid: this.uid, room: this.room };
     }
 
-    // board 엔트리를 세어 {all, real} 반환. 봇 uid는 '~'를 포함.
+    // board 엔트리를 세어 {all, real} 반환. 봇 uid는 '~b'를 포함 (플레이어는 '~p').
     async _countRoom(name) {
       const F = this.F;
       const snap = await F.get(F.ref(this.db, `rooms/${name}/board`));
       let all = 0, real = 0; const now = this.now();
       snap.forEach((ch) => {
         const v = ch.val();
-        if (v && (!v.t || now - v.t < C.GHOST_MS)) { all++; if (!ch.key.includes('~')) real++; }
+        if (v && (!v.t || now - v.t < C.GHOST_MS)) { all++; if (!ch.key.includes('~b')) real++; }
       });
       return { all, real };
     }
@@ -159,7 +161,7 @@ window.GF = window.GF || {};
       this.globalUnsubs.push(F.onValue(this.hostRef, (snap) => {
         const v = snap.val();
         this.lastHostVal = v;
-        if (v && v.uid === this.uid) { this._becomeHost(); return; }
+        if (v && v.sid === this.uid) { this._becomeHost(); return; }
         if (this.isHost) this._loseHost();
         this._maybeClaim();
       }));
@@ -177,7 +179,7 @@ window.GF = window.GF || {};
         if (this.isHost || !this._hostIsStale()) return;
         this.F.runTransaction(this.hostRef, (cur) => {
           const now = this.now();
-          if (!cur || !cur.t || now - cur.t > C.HOST_STALE_MS) return { uid: this.uid, t: now };
+          if (!cur || !cur.t || now - cur.t > C.HOST_STALE_MS) return { uid: this.authUid, sid: this.uid, t: now };
           return; // 다른 호스트가 살아있음 → 중단
         }).catch(() => {});
       }, 300 + Math.random() * 1500);
