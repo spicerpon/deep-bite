@@ -1,0 +1,57 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "rooms": {
+      "$room": {
+        "cells": {
+          "$cell": {
+            ".read": "auth != null",
+            "$uid": {
+              ".write": "auth != null && (auth.uid == $uid || (!newData.exists() && data.child('t').val() < now - 25000))",
+              ".validate": "newData.hasChildren(['n','s','x','y','a','m','t']) && newData.child('n').isString() && newData.child('n').val().length <= 12 && newData.child('s').isNumber() && newData.child('x').isNumber() && newData.child('y').isNumber() && newData.child('a').isNumber() && newData.child('m').isNumber() && newData.child('m').val() >= 0 && newData.child('m').val() <= 30000 && newData.child('t').isNumber() && (!data.exists() || newData.child('m').val() <= data.child('m').val() * 2 + 600)",
+              "$field": {
+                ".validate": "$field == 'n' || $field == 's' || $field == 'x' || $field == 'y' || $field == 'a' || $field == 'm' || $field == 'b' || $field == 't'"
+              }
+            }
+          }
+        },
+        "food": {
+          "$cell": {
+            ".read": "auth != null",
+            "$slot": {
+              ".write": "auth != null && newData.exists()",
+              ".validate": "$slot.matches(/^[0-9]{1,2}$/) && newData.isNumber() && newData.val() >= now - 15000 && newData.val() <= now + 15000"
+            }
+          }
+        },
+        "drops": {
+          "$cell": {
+            ".read": "auth != null",
+            "$id": {
+              ".write": "auth != null",
+              ".validate": "newData.hasChildren(['x','y','v','t']) && newData.child('x').isNumber() && newData.child('y').isNumber() && newData.child('v').isNumber() && newData.child('v').val() > 0 && newData.child('v').val() <= 2000 && newData.child('t').isNumber()"
+            }
+          }
+        },
+        "events": {
+          "$uid": {
+            ".read": "auth != null && auth.uid == $uid",
+            "$id": {
+              ".write": "auth != null",
+              ".validate": "newData.hasChildren(['m','v']) && newData.child('m').isNumber() && newData.child('m').val() >= 0 && newData.child('m').val() <= 20000 && newData.child('v').isString() && newData.child('v').val().length <= 12"
+            }
+          }
+        },
+        "board": {
+          ".read": "auth != null",
+          ".indexOn": ["m"],
+          "$uid": {
+            ".write": "auth != null && (auth.uid == $uid || (!newData.exists() && data.child('t').val() < now - 25000))",
+            ".validate": "newData.hasChildren(['n','m','s','t']) && newData.child('n').isString() && newData.child('n').val().length <= 12 && newData.child('m').isNumber() && newData.child('m').val() >= 0 && newData.child('m').val() <= 30000 && newData.child('s').isNumber() && newData.child('t').isNumber()"
+          }
+        }
+      }
+    }
+  }
+}
