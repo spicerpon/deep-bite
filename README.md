@@ -8,7 +8,7 @@ slither.io 스타일의 바다 물고기 성장 멀티플레이 웹게임.
 - Firebase 설정 전에는 **Play vs Bots**(오프라인 봇 모드)만 동작
 
 > **현재 상태 (2026-10-17)**: Firebase 프로젝트 `deep-bite-8eea7`(RTDB: asia-southeast1) 설정 완료, `src/firebase-config.js` 반영됨.
-> 플레이 주소: https://spicerpon.github.io/deep-bite/ · 아래 2번은 새 프로젝트를 다시 만들 때만 필요합니다.
+> 플레이 주소: https://kogames.dev/deep-bite/ (GitHub Pages, 저장소 spicerpon/deep-bite) · 아래 2번은 새 프로젝트를 다시 만들 때만 필요합니다.
 
 ---
 
