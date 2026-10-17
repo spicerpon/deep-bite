@@ -9,11 +9,18 @@
           ".write": "auth != null && (!data.exists() || data.child('uid').val() == auth.uid || data.child('t').val() < now - 20000)",
           ".validate": "newData.hasChildren(['uid','sid','t']) && newData.child('uid').val() == auth.uid && newData.child('sid').isString() && newData.child('sid').val().beginsWith(auth.uid) && newData.child('t').isNumber()"
         },
+        "bots": {
+          ".read": "auth != null",
+          "$id": {
+            ".write": "auth != null && $id.beginsWith('bot~') && root.child('rooms').child($room).child('host').child('uid').val() == auth.uid",
+            ".validate": "newData.hasChildren(['n','s','x','y','a','m','cell']) && newData.child('n').isString() && newData.child('n').val().length <= 12 && newData.child('s').isNumber() && newData.child('x').isNumber() && newData.child('y').isNumber() && newData.child('a').isNumber() && newData.child('m').isNumber() && newData.child('m').val() >= 0 && newData.child('m').val() <= 30000 && newData.child('cell').isString()"
+          }
+        },
         "cells": {
           "$cell": {
             ".read": "auth != null",
             "$uid": {
-              ".write": "auth != null && (auth.uid == $uid || $uid.beginsWith(auth.uid + '~') || (!newData.exists() && data.child('t').val() < now - 25000))",
+              ".write": "auth != null && (auth.uid == $uid || $uid.beginsWith(auth.uid + '~') || ($uid.beginsWith('bot~') && root.child('rooms').child($room).child('host').child('uid').val() == auth.uid) || (!newData.exists() && data.child('t').val() < now - 25000))",
               ".validate": "newData.hasChildren(['n','s','x','y','a','m','t']) && newData.child('n').isString() && newData.child('n').val().length <= 12 && newData.child('s').isNumber() && newData.child('x').isNumber() && newData.child('y').isNumber() && newData.child('a').isNumber() && newData.child('m').isNumber() && newData.child('m').val() >= 0 && newData.child('m').val() <= 30000 && newData.child('t').isNumber() && (!data.exists() || newData.child('m').val() <= data.child('m').val() * 2 + 600)",
               "$field": {
                 ".validate": "$field == 'n' || $field == 's' || $field == 'x' || $field == 'y' || $field == 'a' || $field == 'm' || $field == 'b' || $field == 't'"
@@ -41,7 +48,7 @@
         },
         "events": {
           "$uid": {
-            ".read": "auth != null && (auth.uid == $uid || $uid.beginsWith(auth.uid + '~'))",
+            ".read": "auth != null && (auth.uid == $uid || $uid.beginsWith(auth.uid + '~') || ($uid.beginsWith('bot~') && root.child('rooms').child($room).child('host').child('uid').val() == auth.uid))",
             "$id": {
               ".write": "auth != null",
               ".validate": "newData.hasChildren(['m','v']) && newData.child('m').isNumber() && newData.child('m').val() >= 0 && newData.child('m').val() <= 20000 && newData.child('v').isString() && newData.child('v').val().length <= 12"
@@ -52,7 +59,7 @@
           ".read": "auth != null",
           ".indexOn": ["m"],
           "$uid": {
-            ".write": "auth != null && (auth.uid == $uid || $uid.beginsWith(auth.uid + '~') || (!newData.exists() && data.child('t').val() < now - 25000))",
+            ".write": "auth != null && (auth.uid == $uid || $uid.beginsWith(auth.uid + '~') || ($uid.beginsWith('bot~') && root.child('rooms').child($room).child('host').child('uid').val() == auth.uid) || (!newData.exists() && data.child('t').val() < now - 25000))",
             ".validate": "newData.hasChildren(['n','m','s','t']) && newData.child('n').isString() && newData.child('n').val().length <= 12 && newData.child('m').isNumber() && newData.child('m').val() >= 0 && newData.child('m').val() <= 30000 && newData.child('s').isNumber() && newData.child('t').isNumber()"
           }
         }
