@@ -16,7 +16,10 @@
   };
 
   let skin = GF.storage.get('gf.skin', 0) | 0;
-  els.name.value = GF.storage.get('gf.name', '');
+  // 기본 닉네임: 저장된 이름이 없으면 더미셋에서 랜덤
+  els.name.value = GF.storage.get('gf.name', '') || GF.randomName();
+  const shuffleBtn = $('name-shuffle');
+  if (shuffleBtn) shuffleBtn.addEventListener('click', () => { els.name.value = GF.randomName(); els.name.focus(); });
   let game = null, net = null, mode = null;
   let toastTimer = 0;
 
