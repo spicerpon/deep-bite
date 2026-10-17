@@ -1,0 +1,161 @@
+// ============================================================
+// Deep Bite — UI glue (start screen, HUD, death screen)
+// ============================================================
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const C = GF.CONFIG;
+
+  const els = {
+    canvas: $('game'), minimap: $('minimap'), boostBtn: $('boost-btn'),
+    start: $('start'), death: $('death'), hud: $('hud'), toast: $('toast'), feed: $('feed'),
+    name: $('name'), skinPrev: $('skin-prev'), skinNext: $('skin-next'), skinCanvas: $('skin-preview'), skinName: $('skin-name'),
+    playOnline: $('play-online'), playBots: $('play-bots'), onlineNote: $('online-note'), status: $('status'),
+    hudMass: $('hud-mass'), hudRank: $('hud-rank'), board: $('board'), hudPlayers: $('hud-players'), hint: $('hint'),
+    deathTitle: $('death-title'), deathSub: $('death-sub'), stPeak: $('st-peak'), stKills: $('st-kills'), stFood: $('st-food'), stTime: $('st-time'),
+    again: $('again'), menu: $('menu'),
+  };
+
+  let skin = GF.storage.get('gf.skin', 0) | 0;
+  els.name.value = GF.storage.get('gf.name', '');
+  let game = null, net = null, mode = null;
+  let toastTimer = 0;
+
+  // ---------- skin preview ----------
+  const pctx = els.skinCanvas.getContext('2d');
+  let previewT = 0, previewRaf = 0;
+  function drawPreview(ts) {
+    previewT = ts / 1000;
+    const w = els.skinCanvas.width, h = els.skinCanvas.height;
+    pctx.clearRect(0, 0, w, h);
+    const grad = pctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, '#0b5f8e'); grad.addColorStop(1, '#063a60');
+    pctx.fillStyle = grad; pctx.fillRect(0, 0, w, h);
+    GF.drawFish(pctx, { x: w / 2, y: h / 2 + 4, a: 0, r: 46, skin, boost: false, phase: 0 }, previewT, { mouth: 0.3 + 0.3 * Math.sin(previewT * 2), speed: 0.8 });
+    if (!els.start.hidden) previewRaf = requestAnimationFrame(drawPreview);
+  }
+  function setSkin(i) {
+    skin = (i + GF.SKINS.length) % GF.SKINS.length;
+    els.skinName.textContent = GF.SKINS[skin].name;
+    GF.storage.set('gf.skin', skin);
+  }
+  els.skinPrev.addEventListener('click', () => setSkin(skin - 1));
+  els.skinNext.addEventListener('click', () => setSkin(skin + 1));
+  setSkin(skin);
+
+  // ---------- online availability ----------
+  const online = GF.hasFirebaseConfig();
+  if (!online) {
+    els.playOnline.disabled = true;
+    els.onlineNote.hidden = false;
+  }
+
+  // ---------- UI callbacks for Game ----------
+  const ui = {
+    toast(msg, isErr) {
+      els.toast.textContent = msg;
+      els.toast.classList.toggle('err', !!isErr);
+      els.toast.hidden = false;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { els.toast.hidden = true; }, isErr ? 6000 : 2500);
+    },
+    kill(name, gain) {
+      const li = document.createElement('div');
+      li.className = 'feed-item';
+      li.innerHTML = `You ate <b>${escapeHtml(name)}</b> <span class="gain">+${GF.fmtMass(gain)}</span>`;
+      els.feed.prepend(li);
+      setTimeout(() => li.classList.add('out'), 2600);
+      setTimeout(() => li.remove(), 3100);
+      while (els.feed.children.length > 4) els.feed.lastChild.remove();
+    },
+    hud(info) {
+      els.hudMass.textContent = GF.fmtMass(info.mass);
+      els.hudRank.textContent = info.rank;
+      els.hudPlayers.textContent = `${info.players} fish · ${info.room}`;
+      const frag = document.createDocumentFragment();
+      info.board.forEach((b, i) => {
+        const li = document.createElement('li');
+        if (b.uid === info.uid) li.className = 'me';
+        li.innerHTML = `<span class="pos">${i + 1}</span><span class="nm">${escapeHtml(b.n || '?')}</span><span class="ms">${GF.fmtMass(b.m)}</span>`;
+        frag.appendChild(li);
+      });
+      els.board.replaceChildren(frag);
+      els.boostBtn.classList.toggle('on', !!info.boost);
+    },
+    death(st) {
+      els.deathTitle.textContent = 'Eaten!';
+      els.deathSub.textContent = `${st.killedBy} swallowed you whole.`;
+      els.stPeak.textContent = GF.fmtMass(st.peak);
+      els.stKills.textContent = st.kills;
+      els.stFood.textContent = st.foodEaten;
+      els.stTime.textContent = GF.fmtTime(st.time);
+      els.death.hidden = false;
+      els.hint.hidden = true;
+    },
+  };
+
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+  // ---------- start / stop ----------
+  async function play(useOnline) {
+    const name = GF.sanitizeName(els.name.value);
+    els.name.value = name;
+    GF.storage.set('gf.name', name);
+    mode = useOnline ? 'online' : 'bots';
+    els.playOnline.disabled = true; els.playBots.disabled = true;
+    els.status.textContent = useOnline ? 'Connecting to the ocean…' : 'Filling the reef with fish…';
+    els.status.hidden = false;
+    try {
+      if (net && net.disconnect) net.disconnect();
+      net = useOnline ? new GF.FirebaseNet(window.GF_FIREBASE_CONFIG) : new GF.LocalNet();
+      if (!game) game = new GF.Game({ canvas: els.canvas, minimapCanvas: els.minimap, boostBtn: els.boostBtn, ui });
+      const info = await game.start(net, { name, skin });
+      els.start.hidden = true;
+      els.death.hidden = true;
+      els.hud.hidden = false;
+      els.hint.hidden = false;
+      els.status.hidden = true;
+      cancelAnimationFrame(previewRaf);
+      if (useOnline) ui.toast(`Joined ${info.room}`);
+      setTimeout(() => { els.hint.classList.add('fade'); }, 6000);
+    } catch (e) {
+      console.error(e);
+      els.status.textContent = '';
+      els.status.hidden = true;
+      ui.toast(e && e.message ? e.message : String(e), true);
+    } finally {
+      els.playOnline.disabled = !online; els.playBots.disabled = false;
+    }
+  }
+
+  els.playOnline.addEventListener('click', () => play(true));
+  els.playBots.addEventListener('click', () => play(false));
+  els.name.addEventListener('keydown', (e) => { if (e.key === 'Enter') play(online); });
+
+  els.again.addEventListener('click', () => {
+    els.death.hidden = true;
+    game.respawn();
+  });
+  els.menu.addEventListener('click', () => {
+    els.death.hidden = true;
+    els.hud.hidden = true;
+    if (game) game.stop();
+    if (net && net.disconnect) net.disconnect();
+    net = null;
+    els.start.hidden = false;
+    els.hint.classList.remove('fade');
+    previewRaf = requestAnimationFrame(drawPreview);
+  });
+
+  window.addEventListener('beforeunload', () => { if (net && net.disconnect) net.disconnect(); });
+
+  // 터치 기기면 부스트 버튼 표시
+  if (window.matchMedia('(pointer: coarse)').matches) {
+    els.boostBtn.classList.add('touch');
+    els.hint.textContent = 'Drag to steer · Hold BOOST (or a 2nd finger) to dash';
+  }
+
+  previewRaf = requestAnimationFrame(drawPreview);
+
+  // 디버그 콘솔용 (예: GF.debug.game.me)
+  GF.debug = { get game() { return game; }, get net() { return net; } };
+})();
