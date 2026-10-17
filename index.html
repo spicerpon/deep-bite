@@ -50,10 +50,13 @@
         <button class="arrow" id="skin-next" type="button" aria-label="Next fish">›</button>
       </div>
 
-      <label class="field">
-        <span class="field-label">Your name</span>
-        <input id="name" type="text" maxlength="12" placeholder="Nameless fish" autocomplete="off" spellcheck="false">
-      </label>
+      <div class="field">
+        <label class="field-label" for="name">Your name</label>
+        <div class="name-row">
+          <input id="name" type="text" maxlength="12" placeholder="Fish" autocomplete="off" spellcheck="false">
+          <button class="shuffle" id="name-shuffle" type="button" title="Random name" aria-label="Random name">⟳</button>
+        </div>
+      </div>
 
       <div class="btn-row">
         <button class="btn primary" id="play-online" type="button">Play Online</button>
@@ -101,6 +104,7 @@
 <script src="src/bots.js"></script>
 <script src="src/net-local.js"></script>
 <script src="src/firebase-config.js"></script>
+<script src="src/host-bots.js"></script>
 <script src="src/net-firebase.js"></script>
 <script src="src/game.js"></script>
 <script src="src/main.js"></script>
