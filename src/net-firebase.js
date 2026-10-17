@@ -71,8 +71,8 @@ window.GF = window.GF || {};
       let wasConnected = null;
       this.globalUnsubs.push(F.onValue(F.ref(db, '.info/connected'), (s) => {
         const ok = s.val() === true;
-        if (wasConnected === true && !ok) this.emit('error', '연결이 끓겼습니다. 다시 연결 중…');
-        // 재연결: 서버에서 onDisconnect로 내 레코드가 지워졌을 수 있으므로 다시 씜
+        if (wasConnected === true && !ok) this.emit('error', '연결이 끈겼습니다. 다시 연결 중…');
+        // 재연결: 서버에서 onDisconnect로 내 레코드가 지워졌을 수 있으므로 다시 씌
         if (wasConnected === false && ok && this.alive && this.lastRec) this.resync(this.lastRec);
         wasConnected = ok;
       }));
