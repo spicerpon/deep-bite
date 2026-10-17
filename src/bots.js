@@ -5,16 +5,13 @@
 window.GF = window.GF || {};
 (function () {
   const C = GF.CONFIG;
-  const NAMES = ['Finn', 'Gill', 'Bubbles', 'Coral', 'Pearl', 'Sandy', 'Kelp', 'Moby', 'Shelly', 'Wavy', 'Splash', 'Tide',
-    'Reef', 'Guppy', 'Blub', 'Fathom', 'Nori', 'Mako', 'Scales', 'Puff', 'Drift', 'Marina', 'Otto', 'Pike', 'Roe', 'Sushi',
-    'Chum', 'Ripple', 'Barnacle', 'Squirt', 'Flounder', 'Dorsal', 'Kraken Jr', 'Minnie', 'Bass', 'Cod', 'Haddock', 'Ling'];
 
   let seq = 0;
   class Bot {
-    constructor(rand, startBig) {
+    constructor(rand, startBig, uid) {
       this.rand = rand;
-      this.uid = 'bot' + (++seq) + GF.randId(3);
-      this.n = NAMES[(rand() * NAMES.length) | 0];
+      this.uid = uid || ('bot' + (++seq) + GF.randId(3));
+      this.n = GF.randomName(rand);
       this.s = (rand() * C.SKIN_COUNT) | 0;
       this.aggression = rand();          // 0 = 소심, 1 = 사냥꾼
       this.skill = 0.5 + rand() * 0.5;   // 반응 속도
