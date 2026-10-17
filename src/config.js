@@ -46,6 +46,18 @@ GF.CONFIG = {
   NAME_MAX: 12,
   SKIN_COUNT: 10,
   BOT_COUNT: 34,        // 오프라인 모드 봇 수
+
+  // --- Online population policy (호스트 봇) ---
+  // 방 인구가 ONLINE_MIN_POP 보다 적으면, 가장 먼저 들어온 클라이언트(호스트)가 봇을 굴려서 채움.
+  // 진짜 유저가 늘어나면 봇은 하나씩 조용히 '퇴장'함 (다른 .io 게임들의 인구 유지 방식).
+  ONLINE_MIN_POP: 22,   // 목표 총 인구 (유저 + 봇)
+  ONLINE_BOT_MAX: 26,   // 봇 상한
+  BOT_TICK_HZ: 5,       // 봇 위치 전송 빈도
+  BOT_SPAWN_EVERY_MS: 1500,
+  BOT_LEAVE_EVERY_MS: 8000,
+  BOT_ADJUST_MS: 6000,
+  HOST_BEAT_MS: 5000,   // 호스트 lease 갱신 주기
+  HOST_STALE_MS: 15000, // 이 시간 동안 갱신 없으면 다른 클라이언트가 호스트를 가져감 (rules의 20000보다 짧게)
 };
 
 // 질량 → 반지름 (world units)
