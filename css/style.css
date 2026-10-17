@@ -103,7 +103,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outl
 
 /* ---------- Screens ---------- */
 .screen {
-  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  position: absolute; inset: 0; display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: center; justify-content: safe center;
   padding-block: calc(16px + var(--sa-t)) calc(16px + var(--sa-b));
   padding-left: max(16px, var(--sa-l)); padding-right: max(16px, var(--sa-r));
   overflow-y: auto;
@@ -172,6 +172,18 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outl
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-family: var(--font-display); font-size: 18px; letter-spacing: .02em; }
 .btn.primary:hover:not(:disabled) { background: #ffc24a; }
+/* 보상형 광고 '이어하기' */
+.btn.reward {
+  flex: 0 0 auto; width: 100%; display: flex; flex-direction: column; gap: 2px; align-items: center; padding: 10px 16px;
+  background: linear-gradient(180deg, rgba(255, 176, 32, 0.22), rgba(255, 176, 32, 0.10)); border-color: var(--accent); color: var(--fg);
+}
+.btn.reward:hover:not(:disabled) { background: rgba(255, 176, 32, 0.3); }
+.reward-k { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--accent); }
+.reward-v { font-size: 12px; font-weight: 700; color: var(--muted); }
+
+/* 광고 자리 (카드 아래). slot 이 없으면 [hidden] 으로 숨겨짐 */
+.ad-slot { width: 100%; max-width: 440px; min-height: 90px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.ad-slot .adsbygoogle { width: 100%; }
 
 .note { margin: -4px 0 0; font-size: 12.5px; color: var(--muted); }
 .note code { color: var(--cyan); font-size: 12px; }
@@ -188,6 +200,8 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outl
   font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }
 .rules b { color: var(--fg); }
 .foot { margin: 0; font-size: 12px; color: var(--muted); }
+.foot-link { color: var(--muted); text-decoration: underline dotted; }
+.foot-link:hover { color: var(--fg); }
 .muted { opacity: .7; }
 
 .death-card h2 { font-family: var(--font-display); font-size: 44px; margin: 0; color: var(--danger); line-height: 1; }
