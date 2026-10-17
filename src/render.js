@@ -279,7 +279,7 @@ window.GF = window.GF || {};
       ctx.globalAlpha = 1;
     }
 
-    // 미니맵 (별도 작은 캨버스)
+    // 미니맵 (별도 작은 캔버스)
     drawMinimap(mctx, size, me, others) {
       mctx.clearRect(0, 0, size, size);
       mctx.fillStyle = 'rgba(5,30,55,0.75)';
