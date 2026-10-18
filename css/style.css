@@ -101,6 +101,59 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outl
 }
 #hint.fade { opacity: 0; }
 
+/* ---------- 가상 조이스틱 (터치) ---------- */
+.joy {
+  position: absolute; left: max(22px, var(--sa-l)); bottom: calc(26px + var(--sa-b));
+  width: 128px; height: 128px; border-radius: 50%;
+  background: rgba(6, 30, 56, 0.35); border: 2px solid rgba(130, 200, 255, 0.35);
+  pointer-events: none; transition: background .15s, border-color .15s;
+}
+.joy::before { content: ''; position: absolute; inset: 30%; border-radius: 50%; border: 1px dashed rgba(130, 200, 255, 0.28); }
+.joy-knob {
+  position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; border-radius: 50%; transform: translate(-50%, -50%);
+  background: rgba(79, 216, 255, 0.55); border: 2px solid rgba(234, 246, 255, 0.85); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+.joy.active { background: rgba(6, 30, 56, 0.55); border-color: rgba(79, 216, 255, 0.75); }
+.joy.active .joy-knob { background: var(--accent); border-color: #fff; }
+
+/* ---------- 터치 기기 HUD 배치 ----------
+   위: 왼쪽 스탯 알약(질량·순위) / 오른쪽 축소 리더보드 / 그 아래 왼쪽에 킬 피드
+   아래: 왼쪽 조이스틱 / 가운데 미니맵 / 오른쪽 BOOST */
+body.touch .hud-stats { gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; backdrop-filter: blur(6px); padding: 5px 4px; }
+body.touch .stat { background: none; border: 0; backdrop-filter: none; padding: 0 10px; min-width: 0; border-radius: 0; }
+body.touch .stat + .stat { border-left: 1px solid var(--line); }
+body.touch .stat .label { font-size: 9.5px; }
+body.touch .stat .val { font-size: 17px; }
+body.touch .hud-board { min-width: 128px; max-width: 42vw; padding: 6px 8px 4px; }
+body.touch .hud-board .board-title { font-size: 9.5px; }
+body.touch .hud-board li { font-size: 11px; line-height: 1.4; grid-template-columns: 12px 1fr auto; gap: 4px; }
+body.touch .hud-board li:nth-child(n+6) { display: none; }
+body.touch .hud-board .players { font-size: 9.5px; margin-top: 3px; }
+body.touch #feed { top: calc(60px + var(--sa-t)); left: max(16px, var(--sa-l)); transform: none; align-items: flex-start; max-width: 56vw; }
+body.touch .feed-item { font-size: 12.5px; padding: 4px 10px; }
+body.touch #hint { display: none; }
+body.touch #minimap { left: 50%; transform: translateX(-50%); bottom: calc(24px + var(--sa-b)); width: 84px; height: 84px; opacity: 0.8; }
+body.touch #boost-btn { width: 84px; height: 84px; font-size: 13px; bottom: calc(30px + var(--sa-b)); right: max(22px, var(--sa-r)); }
+body.touch #toast { bottom: auto; top: calc(104px + var(--sa-t)); }
+/* 가로 모드(낮은 화면): 한 단계 더 압축 */
+@media (max-height: 520px) {
+  body.touch .hud-board li:nth-child(n+4) { display: none; }
+  body.touch .hud-board .players { display: none; }
+  body.touch #minimap { width: 64px; height: 64px; bottom: calc(16px + var(--sa-b)); }
+  body.touch #boost-btn { width: 72px; height: 72px; font-size: 12px; bottom: calc(20px + var(--sa-b)); }
+  body.touch .joy { width: 108px; height: 108px; bottom: calc(18px + var(--sa-b)); }
+  body.touch .joy-knob { width: 44px; height: 44px; }
+  body.touch #feed { top: calc(62px + var(--sa-t)); }
+  body.touch #toast { top: calc(60px + var(--sa-t)); }
+}
+/* 좁은 화면(360px 급): 하단 세 요소가 겹치지 않게 */
+@media (max-width: 400px) {
+  body.touch .joy { width: 112px; height: 112px; }
+  body.touch .joy-knob { width: 46px; height: 46px; }
+  body.touch #minimap { width: 72px; height: 72px; }
+  body.touch #boost-btn { width: 76px; height: 76px; }
+}
+
 /* ---------- Screens ---------- */
 .screen {
   position: absolute; inset: 0; display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: center; justify-content: safe center;
@@ -246,9 +299,4 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outl
 
 @media (max-width: 520px) {
   .card { padding: 20px 16px 16px; }
-  .hud-board { min-width: 120px; padding: 6px 8px 4px; }
-  .hud-board li { font-size: 11.5px; }
-  .hud-board li:nth-child(n+6) { display: none; }
-  .stat .val { font-size: 18px; }
-  #minimap { width: 96px; height: 96px; }
 }
