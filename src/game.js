@@ -11,9 +11,9 @@ window.GF = window.GF || {};
   const C = GF.CONFIG;
 
   class Game {
-    constructor({ canvas, minimapCanvas, boostBtn, ui }) {
+    constructor({ canvas, minimapCanvas, boostBtn, joyEl, ui }) {
       this.renderer = new GF.Renderer(canvas);
-      this.input = new GF.Input(canvas, boostBtn);
+      this.input = new GF.Input(canvas, boostBtn, joyEl);
       this.minimap = minimapCanvas ? minimapCanvas.getContext('2d') : null;
       this.minimapCanvas = minimapCanvas;
       this.ui = ui;

@@ -6,7 +6,7 @@
   const C = GF.CONFIG;
 
   const els = {
-    canvas: $('game'), minimap: $('minimap'), boostBtn: $('boost-btn'),
+    canvas: $('game'), minimap: $('minimap'), boostBtn: $('boost-btn'), joy: $('joy'),
     start: $('start'), death: $('death'), hud: $('hud'), toast: $('toast'), feed: $('feed'),
     name: $('fish-nick'), skinPrev: $('skin-prev'), skinNext: $('skin-next'), skinCanvas: $('skin-preview'), skinName: $('skin-name'),
     playOnline: $('play-online'), playBots: $('play-bots'), onlineNote: $('online-note'), status: $('status'),
@@ -152,7 +152,7 @@
     try {
       if (net && net.disconnect) net.disconnect();
       net = useOnline ? new GF.FirebaseNet(window.GF_FIREBASE_CONFIG) : new GF.LocalNet();
-      if (!game) game = new GF.Game({ canvas: els.canvas, minimapCanvas: els.minimap, boostBtn: els.boostBtn, ui });
+      if (!game) game = new GF.Game({ canvas: els.canvas, minimapCanvas: els.minimap, boostBtn: els.boostBtn, joyEl: els.joy, ui });
       const info = await game.start(net, { name, skin });
       els.start.hidden = true;
       els.death.hidden = true;
@@ -210,9 +210,12 @@
   // 터치 기기면 부스트 버튼 표시
   if (window.matchMedia('(pointer: coarse)').matches) {
     els.boostBtn.classList.add('touch');
-    els.hint.textContent = 'Drag to steer · Hold BOOST (or a 2nd finger) to dash';
+    els.joy.hidden = false;
+    document.body.classList.add('touch');
+    const bt = document.querySelector('.board-title'); if (bt) bt.textContent = 'Leaders';
+    els.hint.textContent = 'Joystick to steer · Hold BOOST (or a 2nd finger) to dash';
     const cm = $('ctrl-move'), cb = $('ctrl-boost');
-    if (cm) cm.textContent = 'Drag';
+    if (cm) cm.textContent = 'Joystick';
     if (cb) cb.textContent = 'Hold BOOST';
   }
 
