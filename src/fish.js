@@ -124,33 +124,50 @@ window.GF = window.GF || {};
     ctx.stroke();
     ctx.restore();
 
-    // --- eye ---
-    const ex = r * 0.58, ey = -ry * 0.3, er = Math.max(1.5, r * 0.12);
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath(); ctx.arc(ex, ey, er, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#111622';
-    ctx.beginPath(); ctx.arc(ex + er * 0.3, ey, er * 0.55, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,0.8)';
-    ctx.beginPath(); ctx.arc(ex + er * 0.45, ey - er * 0.3, er * 0.18, 0, Math.PI * 2); ctx.fill();
+    // --- gill line (머리/몸통 구분, 은은하게) ---
+    ctx.strokeStyle = S.dark;
+    ctx.lineWidth = lw * 0.8;
+    ctx.globalAlpha = alpha * 0.3;
+    ctx.beginPath();
+    ctx.moveTo(r * 0.34, -ry * 0.55);
+    ctx.quadraticCurveTo(r * 0.2, 0, r * 0.34, ry * 0.6);
+    ctx.stroke();
+    ctx.globalAlpha = alpha;
 
-    // --- mouth ---
+    // --- mouth (눈보다 먼저 그려서 어떤 경우에도 눈을 덮지 않음) ---
+    // 턱 관절(jx)은 눈의 앞·아래에 두고, 위턱은 살짝만 들리고 아래턱이 크게 벌어지게 (실제 물고기처럼)
     ctx.strokeStyle = S.dark;
     ctx.lineWidth = lw;
+    const jx = r * 0.68;
     if (mouth > 0.05) {
+      const up = ry * (0.07 + 0.18 * mouth);   // 위턱 들림 (최대 0.14r — 눈과 겹치지 않음)
+      const dn = ry * (0.12 + 0.48 * mouth);   // 아래턱 벌어짐 (최대 0.34r — 몸통 안)
       ctx.fillStyle = '#2a0f14';
       ctx.beginPath();
-      ctx.moveTo(r * 0.98, 0);
-      ctx.lineTo(r * 0.62, -ry * 0.28 * mouth - ry * 0.05);
-      ctx.quadraticCurveTo(r * 0.55, 0, r * 0.62, ry * 0.28 * mouth + ry * 0.05);
+      ctx.moveTo(r * 0.99, -ry * 0.02);
+      ctx.lineTo(jx, -up);
+      ctx.quadraticCurveTo(jx - r * 0.07, ry * 0.06, jx + r * 0.02, dn);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
     } else {
       ctx.beginPath();
       ctx.moveTo(r * 0.98, 0);
-      ctx.quadraticCurveTo(r * 0.8, ry * 0.12, r * 0.68, ry * 0.08);
+      ctx.quadraticCurveTo(r * 0.84, ry * 0.14, jx + r * 0.04, ry * 0.1);
       ctx.stroke();
     }
+
+    // --- eye (턱 관절보다 위·뒤) ---
+    const ex = r * 0.53, ey = -ry * 0.4, er = Math.max(1.5, r * 0.115);
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(ex, ey, er, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+    ctx.lineWidth = Math.max(0.6, lw * 0.5);
+    ctx.stroke();
+    ctx.fillStyle = '#111622';
+    ctx.beginPath(); ctx.arc(ex + er * 0.3, ey + er * 0.05, er * 0.55, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.beginPath(); ctx.arc(ex + er * 0.45, ey - er * 0.3, er * 0.18, 0, Math.PI * 2); ctx.fill();
 
     ctx.restore();
   };
