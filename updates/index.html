@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deep Bite Update Notes — What Changed and When</title>
+<meta name="description" content="The full changelog for Deep Bite, the free multiplayer fish .io game by KOGAMES: new features, balance changes, bug fixes and art updates, newest first.">
+<link rel="canonical" href="https://kogames.dev/deep-bite/updates/">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KOGAMES">
+<meta property="og:title" content="Deep Bite Update Notes — What Changed and When">
+<meta property="og:description" content="The full changelog for Deep Bite, the free multiplayer fish .io game by KOGAMES: new features, balance changes, bug fixes and art updates, newest first.">
+<meta property="og:url" content="https://kogames.dev/deep-bite/updates/">
+<meta property="og:image" content="https://kogames.dev/deep-bite/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/favicon.png" type="image/png">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+.doc .lead{font-size:18px;color:var(--muted);margin:0 0 20px}
+.doc figure{margin:18px 0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--card)}
+.doc figure img{width:100%;height:auto}
+.doc figcaption{padding:10px 14px;font-size:13px;color:var(--muted)}
+.doc .tip{border-left:3px solid var(--accent);background:var(--card);padding:12px 16px;border-radius:0 12px 12px 0;margin:16px 0}
+.doc .tip p{margin:0}
+.doc .cta{display:flex;flex-wrap:wrap;gap:10px;margin:32px 0 0}
+.doc .kbd{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--bg-2);border:1px solid var(--line);border-radius:6px;padding:1px 7px;font-size:13px}
+.doc .chain{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin:14px 0 6px}
+.doc .chain div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center;font-size:12.5px;line-height:1.4}
+.doc .chain img{width:46px;height:46px;margin:0 auto 6px}
+.doc .chain b{display:block;color:var(--text)}
+.doc .chain small{color:var(--muted)}
+.doc .pieces{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 6px}
+.doc .pieces figure{margin:0;padding:8px;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:72px}
+.doc .pieces figcaption{padding:0;font-size:12px}
+.doc .log h2{border-top:0;padding-top:0;margin:34px 0 4px;font-size:19px}
+.doc .log .date{color:var(--accent);font-size:13px;font-weight:700;letter-spacing:.08em;margin:0}
+.doc .log ul{margin:6px 0 0}
+.doc .meta a{color:var(--accent)}
+.doc table td:first-child{white-space:nowrap}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Deep Bite update notes","description":"The full changelog for Deep Bite, the free multiplayer fish .io game by KOGAMES: new features, balance changes, bug fixes and art updates, newest first.","inLanguage":"en","datePublished":"2026-10-17","dateModified":"2026-10-28","author":{"@type":"Organization","name":"KOGAMES","url":"https://kogames.dev/"},"publisher":{"@type":"Organization","name":"KOGAMES","url":"https://kogames.dev/"},"image":"https://kogames.dev/deep-bite/assets/og.jpg","mainEntityOfPage":"https://kogames.dev/deep-bite/updates/","about":{"@type":"VideoGame","name":"Deep Bite","url":"https://kogames.dev/deep-bite/"}}</script>
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="brand" href="/"><img class="brand-logo" src="/assets/logo.png" alt="KOGAMES" width="123" height="32"></a>
+  <ul><li class="hide-sm"><a href="/#games">Games</a></li><li><a href="/deep-bite/">Play Deep Bite</a></li><li class="hide-sm"><a href="/deep-bite/guide/">Guide</a></li></ul>
+</div></header>
+<main class="wrap doc">
+<article>
+
+<h1>Deep Bite update notes</h1>
+<p class="meta">Everything that changed in the game, newest first · <a href="/deep-bite/">Play Deep Bite</a> · <a href="/deep-bite/guide/">Strategy guide</a></p>
+<p class="lead">Deep Bite is a small game that gets patched often. This page is the running log of what we changed and why, written as we go. Balance numbers quoted here are the live values; if a figure in the <a href="/deep-bite/guide/">guide</a> ever disagrees with this page, this page is newer.</p>
+<div class="log">
+
+<h2>Fish art: the eye finally sits above the mouth</h2>
+<p class="date">OCTOBER 21, 2026</p>
+<ul>
+<li>Every fish's jaw now hinges in front of and below the eye, and the lower jaw drops instead of the whole mouth opening like a wedge. Before this, an open mouth overlapped the eye on all ten skins — a drawing mistake from the first version, not a design choice.</li>
+<li>Eyes are a little further back with a thin outline, so they stay readable on the bright skins (Lemon, Koi).</li>
+<li>A faint gill line separates the head from the body.</li>
+<li>The icon and the social share image were redrawn to match, with a small fish fleeing in front of the open mouth.</li>
+</ul>
+
+<h2>Phones: virtual joystick and a HUD that stops overlapping</h2>
+<p class="date">OCTOBER 18, 2026</p>
+<ul>
+<li>Touch controls replaced: touch anywhere and a joystick appears under your finger; let go and your fish keeps its heading. BOOST is a dedicated button on the right, and a second finger anywhere also boosts.</li>
+<li>Mobile HUD rebuilt: mass and rank in one pill at the top left, a compact "Leaders" list at the top right, the kill feed and minimap repositioned so nothing overlaps in portrait, landscape or on narrow (360 px) screens.</li>
+<li>Start screen now explains the controls for the device you are on, and the page has a proper How to play, Controls, Tips and FAQ section below the game.</li>
+<li>Share image and icon added so links look right in chat apps.</li>
+</ul>
+
+<h2>Ads, continues and a steadier population</h2>
+<p class="date">OCTOBER 17, 2026</p>
+<ul>
+<li>After being eaten you can watch a short ad to come back nearby with half your mass (once per life). A full-screen ad may show before "Swim again" every few deaths, never more often than every two minutes.</li>
+<li>The game pauses properly while an ad is on screen and resumes where it left off, including when the tab is in the background.</li>
+<li>Online oceans keep their computer-controlled fish even when the player who was running them leaves — another client picks them up, so a room never suddenly empties.</li>
+<li>Controls hint on the start screen: steer with the mouse, hold click or Space to boost.</li>
+</ul>
+
+<h2>Deep Bite 1.0</h2>
+<p class="date">OCTOBER 17, 2026 · FIRST RELEASE</p>
+<ul>
+<li>Shared online oceans for up to 120 fish each, with new oceans opening as they fill.</li>
+<li>Offline "Play vs Bots" mode with 34 computer fish.</li>
+<li>Ten fish skins, random fish names, a top-10 leaderboard and a minimap.</li>
+<li>Three kinds of food (plankton, shrimp, minnows), golden pellets when a fish dies, boost that costs mass, and slow decay above 300 mass so the biggest fish has to keep eating.</li>
+<li>Rooms that are quiet get filled with computer fish until real players arrive.</li>
+</ul>
+
+</div>
+<div class="cta"><a class="btn primary" href="/deep-bite/">Play Deep Bite</a><a class="btn" href="/deep-bite/guide/">Read the guide</a></div>
+
+</article>
+</main>
+<footer><div class="wrap"><div class="foot-left"><img class="foot-logo" src="/assets/logo.png" alt="KOGAMES" width="92" height="24" loading="lazy"><div>© 2026 KOGAMES. All rights reserved.</div></div><nav><a href="/deep-bite/">Deep Bite</a><a href="/deep-bite/guide/">Guide</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav></div></footer>
+<script>document.addEventListener("click",function(e){document.querySelectorAll("details.lang-menu[open]").forEach(function(d){if(!d.contains(e.target))d.removeAttribute("open")})});</script>
+</body>
+</html>
